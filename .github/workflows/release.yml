@@ -56,4 +56,5 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           pnpm config set loglevel warn
+          npm config set loglevel warn
           npx semantic-release --debug
