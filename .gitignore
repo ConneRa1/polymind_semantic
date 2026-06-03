@@ -101,6 +101,9 @@ debug.log
 *.gz
 *.rar
 
+# Release artifacts
+/dist/
+
 # Sensitive files
 secrets.*
 
