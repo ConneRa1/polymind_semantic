@@ -42,7 +42,6 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "test": "jest",
-    "prepublishOnly": "pnpm build",
     "postinstall": "node scripts/postinstall.js",
     "prepare": "husky",
     "release": "semantic-release",
