@@ -21,6 +21,7 @@
   },
   "homepage": "https://atomgit.com/openeuler/polymind#readme",
   "type": "module",
+  "packageManager": "pnpm@11.1.2",
   "bin": {
     "polymind": "./bin/start.js"
   },
