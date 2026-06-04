@@ -22,12 +22,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          fetch-tags: true
           persist-credentials: false
+
+      - name: Configure Git credentials
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
 
       - name: Fetch all tags
         run: |
           git fetch --tags --force
+          echo "=== Tags on remote ==="
           git tag --list | sort -V
 
       - name: Setup pnpm
@@ -49,12 +55,6 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Configure Git credentials
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
-
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -67,4 +67,7 @@ jobs:
       - name: Ensure tags are pushed
         if: success()
         run: |
-          git push origin --tags --force
+          echo "=== Pushing all tags ==="
+          git push origin --tags
+          echo "=== Tags after push ==="
+          git ls-remote --tags origin | grep -v '\^{}' | sort -V
