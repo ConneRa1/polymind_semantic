@@ -62,7 +62,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm config set loglevel warn
-          npx semantic-release
+          npx semantic-release  --dry-run
 
       - name: Ensure tags are pushed
         if: success()
