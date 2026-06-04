@@ -32,9 +32,9 @@ jobs:
 
       - name: Fetch all tags
         run: |
-          git fetch --tags --force
+          git fetch origin '+refs/tags/*:refs/tags/*' --force
           echo "=== Tags on remote ==="
-          git tag --list | sort -V
+          git tag --list | sort -V  
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
