@@ -1,16 +1,9 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      dry_run:
-        description: "Run semantic-release in dry-run mode"
-        required: false
-        default: "false"
-        type: choice
-        options:
-          - "false"
-          - "true"
+  push:
+    branches:
+      - master
 
 permissions:
   contents: write
@@ -25,31 +18,23 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout from GitCode
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: ConneRa1/polymind_semantic
-          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
           persist-credentials: true
           fetch-tags: true
-
-      - name: Add GitCode remote and fetch
-        run: |
-          git remote add gitcode https://oauth2:${{ secrets.GITCODE_TOKEN }}@gitcode.com/ConneRa1/polymind_semantic.git
-          git fetch gitcode '+refs/heads/*:refs/remotes/gitcode/*' --force
-          git fetch gitcode '+refs/tags/*:refs/tags/*' --force
-          echo "=== Resetting master to GitCode ==="
-          git reset --hard gitcode/master
-          echo "=== Current commit ==="
-          git log --oneline -5
-          echo "=== Tags ==="
-          git tag --list | sort -V
 
       - name: Configure Git user
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch all tags
+        run: |
+          git fetch origin '+refs/tags/*:refs/tags/*' --force
+          echo "=== Tags on remote ==="
+          git tag --list | sort -V
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -77,18 +62,12 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm config set loglevel warn
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
-            npx semantic-release --dry-run
-          else
-            npx semantic-release
-          fi
+          npx semantic-release  --dry-run
 
-      - name: Push tags and sync to GitHub
-        if: success() && inputs.dry_run != 'true'
+      - name: Ensure tags are pushed
+        if: success()
         run: |
-          echo "=== Pushing all tags to GitHub ==="
-          git push origin --tags --force
-          echo "=== Force pushing master to GitHub (sync from GitCode) ==="
-          git push origin master --force
-          echo "=== Remote tags ==="
+          echo "=== Pushing all tags ==="
+          git push origin --tags
+          echo "=== Tags after push ==="
           git ls-remote --tags origin | grep -v '\^{}' | sort -V
